@@ -4,8 +4,6 @@
     %meta{ charset:'utf-8' }
     :css
       #dropzone{
-        width:800px;
-        height:80px;
         border: solid red 3px;
       }
       #svg{
@@ -13,16 +11,9 @@
         height:200px;
         border: solid green 3px;
       }
-      #svgText{
-        font-family:monospace;
-        width:800px;
-        height:80px;
-        border: solid blue 3px;
-      }
   %body
-    %div#dropzone
-    %div#files
-    %div#svg.svg
-    %textarea#svgText
+    %div#dropzone<>
+      %div#svg.svg<>
+      %div#png.png<>
   %script{ src:"main.js" }
 

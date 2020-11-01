@@ -134,6 +134,15 @@ const bulidSVG = (o, e) => {
       y: i * 10 + (10 - barH) / 2,
       style: `fill: ${col}`,
     });
+    if (i % 2 == 1) {
+      appendSVG(graphs, "rect", {
+        height: 10,
+        width: w * 3,
+        x: -w,
+        y: i * 10,
+        style: `fill: rgba(0,0,0,0.07)`,
+      });
+    }
   }
   let mYearGrid = appendSVG(svg, "g", {
     stroke: "black",
