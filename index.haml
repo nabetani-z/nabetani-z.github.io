@@ -9,16 +9,19 @@
       .svg, .png{
         background-color:white;
       }
-  %body
-    %div#dropzone
-      ここに jsonファイルをドロップすると、在籍期間タイムライン画像を生成します。
+      #svg_section{
+        display:none;
+      }
+  %body#dropzone
+    ここに jsonファイルをドロップすると、在籍期間タイムライン画像を生成します。
+    %section#svg_section
       %h2 SVG
       %div#svg.svg
       %hr
-      %h2 PNG
-      %p
-        以下の画像は PNG です。右クリック → 画像をコピー などで画像を取得できます。
-      %div#png.png
-        %img#png-image
+    %h2 PNG
+    %p
+      以下の画像は PNG です。右クリック → 画像をコピー などで画像を取得できます。
+    %div#png.png
+      %img#png-image
   %script{ src:"main.js" }
 
