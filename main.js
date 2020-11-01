@@ -70,13 +70,13 @@ const rangeOf = (o) => {
     dMax = Math.max(dMax, toTick(m.out || o.end || now));
   }
   const month = 1000 * 60 * 60 * 24 * 32;
-  return { min: dMin - month, max: dMax + month };
+  return { min: dMin - month, max: dMax };
 };
 
-const xpos = (w, range, tText) => {
+const xpos = (m, tText) => {
   const t = toTick(tText);
-  const d = (t - range.min) / (range.max - range.min);
-  return d * w * 0.8 + w * 0.2;
+  const d = (t - m.range.min) / (m.range.max - m.range.min);
+  return d * m.w * (1 - m.name_ratio) + m.w * m.name_ratio;
 };
 
 const toYear = (t, delta) => {
@@ -127,8 +127,6 @@ const svg2jpeg = (svgElement, sucessCallback, errorCallback) => {
     errorCallback(e);
   };
   let svgData = new XMLSerializer().serializeToString(svgElement);
-  console.log(svgData);
-  console.log(btoaUtf8(svgData));
   image.src = 'data:image/svg+xml;charset=utf-8;base64,' + btoaUtf8(svgData);
 };
 
@@ -140,20 +138,25 @@ const bulidSVG = (o, svgOwner, pngOwner) => {
   const gap = 3;
   const gh = o.members.length * 10;
   const th = o.members.length * 11;
-  const w = (th + gap * 2) * o.width / o.height - gap * 2
+  const w = (th + gap * 2) * o.width / o.height - gap
   let range = rangeOf(o);
   let svg = appendSVG(svgOwner, "svg", {
     xmlns: "http://www.w3.org/2000/svg",
     height: o.height + o.unit,
     width: o.width + o.unit,
-    viewBox: `${-gap} ${-gap} ${w + gap * 2} ${th + gap * 2}`
+    viewBox: `${-gap} ${-gap} ${w + gap} ${th + gap * 2}`
   });
   let graphs = appendSVG(svg, "g", { fill: "#eee" });
+  let measure = {
+    range: rangeOf(o),
+    w: w,
+    name_ratio: o.name_ratio || 0.2,
+  };
   for (let i = 0; i < o.members.length; ++i) {
     let m = o.members[i];
     let col = m.color || "rgb(0,0,255)";
-    let start = xpos(w, range, m.in);
-    let end = xpos(w, range, m.out || o.end || now);
+    let start = xpos(measure, m.in);
+    let end = xpos(measure, m.out || o.end || now);
     const barH = 3;
     appendSVG(graphs, "rect", {
       height: barH,
@@ -199,7 +202,7 @@ const bulidSVG = (o, svgOwner, pngOwner) => {
     lang: "ja"
   });
   for (let yymm = toYYMM(range.min, -1); yymm <= toYYMM(range.max, 1); ++yymm) {
-    let x = xpos(w, range, `${Math.floor(yymm / 12)}-${(yymm % 12) + 1}-1`);
+    let x = xpos(measure, `${Math.floor(yymm / 12)}-${(yymm % 12) + 1}-1`);
     let grid = () => {
       if (yymm % 12 == 0) { return mYearGrid; }
       if (yymm % 3 == 0) { return mThickGrid; }
@@ -256,8 +259,8 @@ const showFiles = (files) => {
 };
 
 bulidSVG({
-  width: 800,
-  height: 400,
+  width: 1600,
+  height: 800,
   graph_left: 100,
   unit: "px",
   members: [

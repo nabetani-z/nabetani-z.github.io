@@ -4,18 +4,23 @@
 <meta charset='utf-8'>
 <style>
   #dropzone{
-    border: solid red 3px;
+    background-color:#eee;
   }
-  #svg{
-    width:800px;
-    height:200px;
-    border: solid green 3px;
+  .svg, .png{
+    background-color:white;
   }
 </style>
 </head>
 <body>
 <div id='dropzone'>
+ここに jsonファイルをドロップすると、在籍期間タイムライン画像を生成します。
+<h2>SVG</h2>
 <div class='svg' id='svg'></div>
+<hr>
+<h2>PNG</h2>
+<p>
+以下の画像は PNG です。右クリック → 画像をコピー などで画像を取得できます。
+</p>
 <div class='png' id='png'>
 <img id='png-image'>
 </div>
