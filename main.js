@@ -146,35 +146,13 @@ const bulidSVG = (o, svgOwner, pngOwner) => {
     width: o.width + o.unit,
     viewBox: `${-gap} ${-gap} ${w + gap} ${th + gap * 2}`
   });
-  let graphs = appendSVG(svg, "g", { fill: "#eee" });
-  let measure = {
-    range: rangeOf(o),
-    w: w,
-    name_ratio: o.name_ratio || 0.2,
-  };
-  for (let i = 0; i < o.members.length; ++i) {
-    let m = o.members[i];
-    let col = m.color || "rgb(0,0,255)";
-    let start = xpos(measure, m.in);
-    let end = xpos(measure, m.out || o.end || now);
-    const barH = 3;
-    appendSVG(graphs, "rect", {
-      height: barH,
-      width: end - start,
-      x: start,
-      y: i * 10 + (10 - barH) / 2,
-      style: `fill: ${col}`,
-    });
-    if (i % 2 == 1) {
-      appendSVG(graphs, "rect", {
-        height: 10,
-        width: w * 3,
-        x: -w,
-        y: i * 10,
-        style: `fill: rgba(0,0,0,0.07)`,
-      });
-    }
-  }
+  appendSVG(svg, "rect", {
+    height: th * 3,
+    width: w * 3,
+    x: -w,
+    y: -th,
+    style: "fill:white",
+  });
   let mYearGrid = appendSVG(svg, "g", {
     stroke: "black",
     style: `stroke-width:${w / 400}; opacity:0.5`
@@ -201,6 +179,38 @@ const bulidSVG = (o, svgOwner, pngOwner) => {
     "font-family": "sans-serif",
     lang: "ja"
   });
+  let graphs = appendSVG(svg, "g", { fill: "#eee" });
+  let measure = {
+    range: rangeOf(o),
+    w: w,
+    name_ratio: o.name_ratio || 0.2,
+  };
+  for (let i = 0; i < o.members.length; ++i) {
+    let m = o.members[i];
+    let col = m.color || "rgb(0,0,255)";
+    let bcol = m.border_color || "rgb(0,0,0,0)";
+    let start = xpos(measure, m.in);
+    let end = xpos(measure, m.out || o.end || now);
+    const barH = 3;
+    const barStyle = `fill: ${col}; stroke-width:${m.border_color ? 0.3 : 0}`
+    appendSVG(graphs, "rect", {
+      height: barH,
+      width: end - start,
+      x: start,
+      stroke: bcol,
+      y: i * 10 + (10 - barH) / 2,
+      style: barStyle,
+    });
+    if (i % 2 == 1) {
+      appendSVG(graphs, "rect", {
+        height: 10,
+        width: w * 3,
+        x: -w,
+        y: i * 10,
+        style: `fill: rgba(0,0,0,0.07)`,
+      });
+    }
+  }
   for (let yymm = toYYMM(range.min, -1); yymm <= toYYMM(range.max, 1); ++yymm) {
     let x = xpos(measure, `${Math.floor(yymm / 12)}-${(yymm % 12) + 1}-1`);
     let grid = () => {
