@@ -1,5 +1,5 @@
 !!!
-%html
+%html{ lang:"ja" }
   %head
     %meta{ charset:'utf-8' }
     :css
@@ -14,6 +14,7 @@
         border: solid green 3px;
       }
       #svgText{
+        font-family:monospace;
         width:800px;
         height:80px;
         border: solid blue 3px;
@@ -22,6 +23,6 @@
     %div#dropzone
     %div#files
     %div#svg.svg
-    %div#svgText
+    %textarea#svgText
   %script{ src:"main.js" }
 
