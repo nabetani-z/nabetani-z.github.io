@@ -1,7 +1,6 @@
 'use strict';
 const elDrop = document.getElementById('dropzone');
 const elSVG = document.getElementById('svg');
-const elSVGText = document.getElementById('svgText');
 
 elDrop.addEventListener('dragover', event => {
   event.preventDefault();
@@ -69,13 +68,38 @@ const rangeOf = (o) => {
     dMin = Math.min(dMin, toTick(m.in));
     dMax = Math.max(dMax, toTick(m.out || o.end || now));
   }
-  return { min: dMin, max: dMax };
+  const month = 1000 * 60 * 60 * 24 * 32;
+  return { min: dMin - month, max: dMax + month };
 };
 
 const xpos = (w, range, tText) => {
   const t = toTick(tText);
   const d = (t - range.min) / (range.max - range.min);
   return d * w * 0.8 + w * 0.2;
+};
+
+const toYear = (t, delta) => {
+  let d = new Date();
+  d.setTime(t);
+  if (delta < 0) {
+    return d.getFullYear();
+  }
+  if (d.getMonth() == 0 && d.getDate() == 1) {
+    return d.getFullYear();
+  }
+  return d.getFullYear() + 1;
+};
+
+const toYYMM = (t, delta) => {
+  let d = new Date();
+  d.setTime(t);
+  if (delta < 0) {
+    return d.getFullYear() * 12 + d.getMonth();
+  }
+  if (d.getDate() == 1) {
+    return d.getFullYear() * 12 + d.getMonth();
+  }
+  return d.getFullYear() * 12 + d.getMonth() + 1;
 };
 
 
@@ -86,14 +110,15 @@ const bulidSVG = (o, e) => {
   e.setAttribute("style", pstyle)
   let now = nowString();
   const gap = 3;
-  const h = o.members.length * 10;
-  const w = (h + gap * 2) * o.width / o.height - gap * 2
+  const gh = o.members.length * 10;
+  const th = o.members.length * 11;
+  const w = (th + gap * 2) * o.width / o.height - gap * 2
   let range = rangeOf(o);
   let svg = appendSVG(e, "svg", {
     xmlns: "http://www.w3.org/2000/svg",
     height: o.height + o.unit,
     width: o.width + o.unit,
-    viewBox: `${-gap} ${-gap} ${w + gap * 2} ${h + gap * 2}`
+    viewBox: `${-gap} ${-gap} ${w + gap * 2} ${th + gap * 2}`
   });
   let graphs = appendSVG(svg, "g", { fill: "#eee" });
   for (let i = 0; i < o.members.length; ++i) {
@@ -110,13 +135,59 @@ const bulidSVG = (o, e) => {
       style: `fill: ${col}`,
     });
   }
-  let texts = appendSVG(svg, "g", {
+  let mYearGrid = appendSVG(svg, "g", {
+    stroke: "black",
+    style: `stroke-width:${w / 400}; opacity:0.5`
+  });
+  let mThickGrid = appendSVG(svg, "g", {
+    stroke: "black",
+    style: `stroke-width:${w / 800}; opacity:0.5`,
+    "stroke-dasharray": "1,0.5"
+  });
+  let mThinGrid = appendSVG(svg, "g", {
+    stroke: "black",
+    style: `stroke-width:${w / 1600}; opacity:0.2`,
+    "stroke-dasharray": "0.5,1"
+  });
+  let nameTexts = appendSVG(svg, "g", {
     fill: "#000",
     "font-size": 4,
-
+    "font-family": "sans-serif",
+    lang: "ja"
   });
+  let yearTexts = appendSVG(svg, "g", {
+    fill: "#000",
+    "font-size": 3,
+    "font-family": "sans-serif",
+    lang: "ja"
+  });
+  for (let yymm = toYYMM(range.min, -1); yymm <= toYYMM(range.max, 1); ++yymm) {
+    let x = xpos(w, range, `${Math.floor(yymm / 12)}-${(yymm % 12) + 1}-1`);
+    let grid = () => {
+      if (yymm % 12 == 0) { return mYearGrid; }
+      if (yymm % 3 == 0) { return mThickGrid; }
+      return mThinGrid;
+    };
+    appendSVG(grid(), "line", {
+      x1: x, x2: x,
+      y1: 0, y2: gh
+    });
+    if (yymm % 12 == 0 && yymm + 2 < toYYMM(range.max, 1)) {
+      const year = Math.floor(yymm / 12);
+      let text = appendSVG(yearTexts, "text", {
+        lang: "ja",
+        x: x, y: gh + 3,
+        "text-anchor": "middle"
+      });
+      text.innerHTML = year;
+    }
+  }
   for (let i = 0; i < o.members.length; ++i) {
-    let text = appendSVG(texts, "text", { x: 1, y: i * 10 + 7 });
+    let text = appendSVG(nameTexts, "text", {
+      lang: "ja",
+      x: 1,
+      y: i * 10 + 7
+    });
     text.innerHTML = o.members[i].name;
   }
 };
@@ -136,7 +207,6 @@ const showFiles = (files) => {
   reader.onload = (e) => {
     let o = JSON.parse(e.target.result);
     bulidSVG(o, elSVG);
-    elSVGText.innerText = elSVG.innerHTML;
   }
   reader.readAsText(file);
 };
@@ -191,4 +261,3 @@ bulidSVG({
     },
   ]
 }, elSVG);
-elSVGText.innerText = elSVG.innerHTML;
