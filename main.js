@@ -1,6 +1,7 @@
 'use strict';
 const elDrop = document.getElementById('dropzone');
 const elSVG = document.getElementById('svg');
+const elPng = document.getElementById('png');
 
 elDrop.addEventListener('dragover', event => {
   event.preventDefault();
@@ -102,19 +103,46 @@ const toYYMM = (t, delta) => {
   return d.getFullYear() * 12 + d.getMonth() + 1;
 };
 
+const btoaUtf8 = (str) => {
+  let codes = new TextEncoder("utf-8").encode(str);
+  let r = "";
+  for (let c of codes) {
+    r += String.fromCharCode(c);
+  }
+  return btoa(r);
+};
 
-const bulidSVG = (o, e) => {
-  console.log(JSON.stringify(o));
-  e.innerHTML = ""
+const svg2jpeg = (svgElement, sucessCallback, errorCallback) => {
+  var canvas = document.createElement('canvas');
+  canvas.width = svgElement.width.baseVal.value;
+  canvas.height = svgElement.height.baseVal.value;
+  var ctx = canvas.getContext('2d');
+  var image = new Image;
+
+  image.onload = () => {
+    ctx.drawImage(image, 0, 0, image.width, image.height);
+    sucessCallback(canvas.toDataURL());
+  };
+  image.onerror = (e) => {
+    errorCallback(e);
+  };
+  let svgData = new XMLSerializer().serializeToString(svgElement);
+  console.log(svgData);
+  console.log(btoaUtf8(svgData));
+  image.src = 'data:image/svg+xml;charset=utf-8;base64,' + btoaUtf8(svgData);
+};
+
+const bulidSVG = (o, svgOwner, pngOwner) => {
+  svgOwner.innerHTML = ""
   const pstyle = `height:${o.height}${o.unit};width:${o.width}${o.unit}`;
-  e.setAttribute("style", pstyle)
+  svgOwner.setAttribute("style", pstyle)
   let now = nowString();
   const gap = 3;
   const gh = o.members.length * 10;
   const th = o.members.length * 11;
   const w = (th + gap * 2) * o.width / o.height - gap * 2
   let range = rangeOf(o);
-  let svg = appendSVG(e, "svg", {
+  let svg = appendSVG(svgOwner, "svg", {
     xmlns: "http://www.w3.org/2000/svg",
     height: o.height + o.unit,
     width: o.width + o.unit,
@@ -199,7 +227,14 @@ const bulidSVG = (o, e) => {
     });
     text.innerHTML = o.members[i].name;
   }
+  // 使い方
+  svg2jpeg(svg, function (data) {
+    document.getElementById('png-image').src = data;
+  }, function (error) {
+    console.log(error);
+  })
 };
+
 const showFiles = (files) => {
   elSVG.innerHTML = '';
   if (1 != files.length) {
@@ -215,7 +250,7 @@ const showFiles = (files) => {
   let reader = new FileReader();
   reader.onload = (e) => {
     let o = JSON.parse(e.target.result);
-    bulidSVG(o, elSVG);
+    bulidSVG(o, elSVG, elPng);
   }
   reader.readAsText(file);
 };
@@ -269,4 +304,4 @@ bulidSVG({
       in: "2019年3月3日",
     },
   ]
-}, elSVG);
+}, elSVG, elPng);
