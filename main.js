@@ -135,6 +135,33 @@ const calcHeight = (o, o_width) => {
   return o_width / 25 * (mc + 0.7);
 };
 
+const whiteBack = (svg, w, h) => {
+  appendSVG(svg, "rect", {
+    height: h * 3,
+    width: w * 3,
+    x: -w,
+    y: -h,
+    style: "fill:white",
+  });
+};
+
+const gridLayer = (svg, stroke_w, opacity, dash = null) => {
+  return appendSVG(svg, "g", {
+    stroke: "black",
+    style: `stroke-width:${stroke_w}; opacity:${opacity}`,
+    ...(dash ? { "stroke-dasharray": dash } : {})
+  });
+};
+
+const textLayer = (svg, fontSize) => {
+  return appendSVG(svg, "g", {
+    fill: "#000",
+    "font-size": fontSize,
+    "font-family": "sans-serif",
+    lang: "ja"
+  });
+};
+
 const bulidSVG = (o, svgOwner, pngOwner) => {
   svgOwner.innerHTML = ""
   const unit = o.unit || "px";
@@ -154,39 +181,12 @@ const bulidSVG = (o, svgOwner, pngOwner) => {
     width: o_width + unit,
     viewBox: `${-gap} ${-gap} ${w + gap} ${th + gap * 2}`
   });
-  appendSVG(svg, "rect", {
-    height: th * 3,
-    width: w * 3,
-    x: -w,
-    y: -th,
-    style: "fill:white",
-  });
-  let mYearGrid = appendSVG(svg, "g", {
-    stroke: "black",
-    style: `stroke-width:${w / 400}; opacity:0.5`
-  });
-  let mThickGrid = appendSVG(svg, "g", {
-    stroke: "black",
-    style: `stroke-width:${w / 800}; opacity:0.5`,
-    "stroke-dasharray": "1,0.5"
-  });
-  let mThinGrid = appendSVG(svg, "g", {
-    stroke: "black",
-    style: `stroke-width:${w / 1600}; opacity:0.2`,
-    "stroke-dasharray": "0.5,1"
-  });
-  let nameTexts = appendSVG(svg, "g", {
-    fill: "#000",
-    "font-size": 4,
-    "font-family": "sans-serif",
-    lang: "ja"
-  });
-  let yearTexts = appendSVG(svg, "g", {
-    fill: "#000",
-    "font-size": 3,
-    "font-family": "sans-serif",
-    lang: "ja"
-  });
+  whiteBack(svg, w, th);
+  let mYearGrid = gridLayer(svg, w / 400, 0.5);
+  let mThickGrid = gridLayer(svg, w / 800, 0.5, "1,0.5");
+  let mThinGrid = gridLayer(svg, w / 1600, 0.2, "0.5,1");
+  let nameTexts = textLayer(svg, 4);
+  let yearTexts = textLayer(svg, 3);
   let graphs = appendSVG(svg, "g", { fill: "#eee" });
   let measure = {
     range: rangeOf(o),
@@ -253,6 +253,7 @@ const bulidSVG = (o, svgOwner, pngOwner) => {
     document.getElementById('png-image').src = data;
   }, function (error) {
     console.log(error);
+    alert(error);
   })
 };
 
