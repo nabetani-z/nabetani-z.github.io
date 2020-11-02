@@ -191,10 +191,19 @@ const bulidSVG = (o, svgOwner, pngOwner) => {
   const nameTexts = textLayer(svg, 4);
   const yearTexts = textLayer(svg, 3);
   const graphs = appendSVG(svg, "g", { fill: "#eee" });
+  let textWMax = 0;
+  for (let i = 0; i < o.members.length; ++i) {
+    const text = appendSVG(nameTexts, "text", {
+      lang: "ja",
+      x: 1,
+      y: i * 10 + 7
+    }, o.members[i].name);
+    textWMax = Math.max(textWMax, text.getBBox().width);
+  }
   const measure = {
     range: rangeOf(o),
     w: w,
-    name_ratio: o.name_ratio || 0.2,
+    name_ratio: (textWMax + 5) / w
   };
   for (let i = 0; i < o.members.length; ++i) {
     const m = o.members[i];
@@ -242,14 +251,6 @@ const bulidSVG = (o, svgOwner, pngOwner) => {
       }, year);
     }
   }
-  for (let i = 0; i < o.members.length; ++i) {
-    appendSVG(nameTexts, "text", {
-      lang: "ja",
-      x: 1,
-      y: i * 10 + 7
-    }, o.members[i].name);
-  }
-  // 使い方
   svg2jpeg(svg, (data) => {
     document.getElementById('png-image').src = data;
   }, (error) => {
@@ -281,7 +282,6 @@ const drawGraph = (files) => {
 bulidSVG({
   //"width": 1600,
   // "height": 400,
-  "name_ratio": 0.4,
   "end": "2019.12.24",
   "members": [
     {
