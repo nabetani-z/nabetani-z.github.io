@@ -56,13 +56,30 @@ const nowString = () => {
   return `${y}-${m}-${d}`;
 };
 
+const toHanNumber = (s) => {
+  return s.replace(/[０１２３４５６７８９]/g, (m) => {
+    return {
+      '０': '0',
+      '１': '1',
+      '２': '2',
+      '３': '3',
+      '４': '4',
+      '５': '5',
+      '６': '6',
+      '７': '7',
+      '８': '8',
+      '９': '9',
+    }[m];
+  });
+};
+
 const toTick = (s) => {
-  let m = s.match(/(\d+)\D+(\d+)\D+(\d+)/);
+  let m = toHanNumber(s).match(/(\d+)\D+(\d+)\D+(\d+)/);
   let yy = parseInt(m[1], 10);
   let mm = parseInt(m[2], 10);
   let dd = parseInt(m[3], 10);
   return (new Date(yy, mm, dd)).getTime();
-}
+};
 
 const rangeOf = (o) => {
   let dMin = 1e100;
@@ -213,14 +230,6 @@ const bulidSVG = (o, svgOwner, hidePrompt) => {
     const end = xpos(measure, m.out || o.end || now);
     const barH = 3;
     const barStyle = `fill: ${col}; stroke-width:${m.border_color ? 0.3 : 0}`
-    appendSVG(graphs, "rect", {
-      height: barH,
-      width: end - start,
-      x: start,
-      stroke: bcol,
-      y: i * 10 + (10 - barH) / 2,
-      style: barStyle,
-    });
     if (i % 2 == 1) {
       appendSVG(graphs, "rect", {
         height: 10,
@@ -230,6 +239,14 @@ const bulidSVG = (o, svgOwner, hidePrompt) => {
         style: `fill: rgba(0,0,0,0.07)`,
       });
     }
+    appendSVG(graphs, "rect", {
+      height: barH,
+      width: end - start,
+      x: start,
+      stroke: bcol,
+      y: i * 10 + (10 - barH) / 2,
+      style: barStyle,
+    });
   }
   for (let yymm = toYYMM(range.min, -1); yymm <= toYYMM(range.max, 1); ++yymm) {
     const x = xpos(measure, `${Math.floor(yymm / 12)}-${(yymm % 12) + 1}-1`);
@@ -288,10 +305,12 @@ const drawGraph = (files) => {
 bulidSVG({
   "width": 1600,
   "height": 400,
+  "name_ratio": 0.4,
+  "unit": "px",
   "end": "2019.12.24",
   "members": [
     {
-      "name": "ミドルネームがあったりして長い名前の初期メン",
+      "name": "最後までいた初期メン",
       "in": "2018年1月1日",
       "color": "green"
     },
@@ -308,16 +327,16 @@ bulidSVG({
       "color": "red"
     },
     {
-      "name": "すぐ卒業した人",
+      "name": "途中加入ですぐ卒業した人",
       "in": "2018年4月7日",
       "out": "2018年4月28日",
       "color": "#00f"
     },
     {
       "name": "一年ぐらいで卒業した人",
-      "in": "2018年7月27日",
-      "out": "2019年8月3日",
-      "color": "brown"
+      "in": "２０１８年５月６日",
+      "out": "２０１９年４月３１日",
+      "color": "#eebc00"
     }
   ]
 }, elSVG, false);
