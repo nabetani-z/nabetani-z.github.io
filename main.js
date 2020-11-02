@@ -130,20 +130,28 @@ const svg2jpeg = (svgElement, sucessCallback, errorCallback) => {
   image.src = 'data:image/svg+xml;charset=utf-8;base64,' + btoaUtf8(svgData);
 };
 
+const calcHeight = (o, o_width) => {
+  const mc = o.members.length;
+  return o_width / 25 * (mc + 0.7);
+};
+
 const bulidSVG = (o, svgOwner, pngOwner) => {
   svgOwner.innerHTML = ""
-  const pstyle = `height:${o.height}${o.unit};width:${o.width}${o.unit}`;
+  const unit = o.unit || "px";
+  const o_width = o.width || 1600;
+  const o_height = o.height || calcHeight(o, o_width);
+  const pstyle = `height:${o_height}${unit};width:${o_width}${unit}`;
   svgOwner.setAttribute("style", pstyle)
   let now = nowString();
   const gap = 3;
   const gh = o.members.length * 10;
   const th = o.members.length * 11;
-  const w = (th + gap * 2) * o.width / o.height - gap
+  const w = (th + gap * 2) * o_width / o_height - gap
   let range = rangeOf(o);
   let svg = appendSVG(svgOwner, "svg", {
     xmlns: "http://www.w3.org/2000/svg",
-    height: o.height + o.unit,
-    width: o.width + o.unit,
+    height: o_height + unit,
+    width: o_width + unit,
     viewBox: `${-gap} ${-gap} ${w + gap} ${th + gap * 2}`
   });
   appendSVG(svg, "rect", {
@@ -269,10 +277,9 @@ const showFiles = (files) => {
 };
 
 bulidSVG({
-  "width": 1600,
-  "height": 400,
+  //"width": 1600,
+  // "height": 400,
   "name_ratio": 0.4,
-  "unit": "px",
   "end": "2019.12.24",
   "members": [
     {
