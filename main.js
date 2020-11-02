@@ -86,8 +86,14 @@ const rangeOf = (o) => {
   let dMax = -1e100;
   let now = nowString();
   for (let m of o.members) {
-    dMin = Math.min(dMin, toTick(m.in));
-    dMax = Math.max(dMax, toTick(m.out || o.end || now));
+    if (m.in) {
+      dMin = Math.min(dMin, toTick(m.in));
+      dMax = Math.max(dMax, toTick(m.out || o.end || now));
+    }
+    for (let e of m.enrollments || []) {
+      dMin = Math.min(dMin, toTick(e.in));
+      dMax = Math.max(dMax, toTick(e.out || o.end || now));
+    }
   }
   const month = 1000 * 60 * 60 * 24 * 32;
   return { min: dMin - month, max: dMax };
@@ -182,6 +188,20 @@ const textLayer = (svg, fontSize) => {
   });
 };
 
+const addBar = (graphs, start, end, i, col0, bcol) => {
+  const barH = 4;
+  const col = col0 || "rgb(0,255,0)";
+  const barStyle = `fill: ${col}; stroke-width:${bcol ? 0.3 : 0}`
+  appendSVG(graphs, "rect", {
+    height: barH,
+    width: end - start,
+    x: start,
+    stroke: (bcol || "rgb(0,0,0,0)"),
+    y: i * 10 + (10 - barH) / 2,
+    style: barStyle,
+  });
+};
+
 const bulidSVG = (o, svgOwner, hidePrompt) => {
   svgOwner.innerHTML = ""
   const unit = o.unit || "px";
@@ -205,7 +225,7 @@ const bulidSVG = (o, svgOwner, hidePrompt) => {
   const mYearGrid = gridLayer(svg, w / 400, 0.5);
   const mThickGrid = gridLayer(svg, w / 800, 0.5, "1,0.5");
   const mThinGrid = gridLayer(svg, w / 1600, 0.2, "0.5,1");
-  const nameTexts = textLayer(svg, 4);
+  const nameTexts = textLayer(svg, 5);
   const yearTexts = textLayer(svg, 3);
   const graphs = appendSVG(svg, "g", { fill: "#eee" });
   let textWMax = 0;
@@ -223,13 +243,6 @@ const bulidSVG = (o, svgOwner, hidePrompt) => {
     name_ratio: (textWMax + 5) / w
   };
   for (let i = 0; i < o.members.length; ++i) {
-    const m = o.members[i];
-    const col = m.color || "rgb(0,0,255)";
-    const bcol = m.border_color || "rgb(0,0,0,0)";
-    const start = xpos(measure, m.in);
-    const end = xpos(measure, m.out || o.end || now);
-    const barH = 3;
-    const barStyle = `fill: ${col}; stroke-width:${m.border_color ? 0.3 : 0}`
     if (i % 2 == 1) {
       appendSVG(graphs, "rect", {
         height: 10,
@@ -239,14 +252,23 @@ const bulidSVG = (o, svgOwner, hidePrompt) => {
         style: `fill: rgba(0,0,0,0.07)`,
       });
     }
-    appendSVG(graphs, "rect", {
-      height: barH,
-      width: end - start,
-      x: start,
-      stroke: bcol,
-      y: i * 10 + (10 - barH) / 2,
-      style: barStyle,
-    });
+    const m = o.members[i];
+    if (m.in) {
+      addBar(graphs,
+        xpos(measure, m.in),
+        xpos(measure, m.out || o.end || now),
+        i,
+        m.color,
+        m.border_color);
+    }
+    for (let e of m.enrollments || []) {
+      addBar(graphs,
+        xpos(measure, e.in),
+        xpos(measure, e.out || o.end || now),
+        i,
+        e.color || m.color,
+        e.color ? e.border_color : m.border_color);
+    }
   }
   for (let yymm = toYYMM(range.min, -1); yymm <= toYYMM(range.max, 1); ++yymm) {
     const x = xpos(measure, `${Math.floor(yymm / 12)}-${(yymm % 12) + 1}-1`);
@@ -304,39 +326,66 @@ const drawGraph = (files) => {
 
 bulidSVG({
   "width": 1600,
-  "height": 400,
-  "name_ratio": 0.4,
-  "unit": "px",
+  "height": 500,
   "end": "2019.12.24",
   "members": [
     {
       "name": "最後までいた初期メン",
-      "in": "2018年1月1日",
+      "in": "2016年1月1日",
       "color": "green"
     },
     {
       "name": "半年で卒業した初期メン",
-      "in": "2018年1月1日",
-      "out": "2018年7月12日",
+      "in": "2016年1月1日",
+      "out": "2016年7月12日",
       "color": "white",
       "border_color": "black"
     },
     {
       "name": "途中加入で最後までいた人",
-      "in": "2018年4月7日",
+      "in": "2016年4月7日",
       "color": "red"
     },
     {
       "name": "途中加入ですぐ卒業した人",
-      "in": "2018年4月7日",
-      "out": "2018年4月28日",
+      "in": "2016年4月7日",
+      "out": "2016年4月28日",
       "color": "#00f"
     },
     {
       "name": "一年ぐらいで卒業した人",
-      "in": "２０１８年５月６日",
-      "out": "２０１９年４月３１日",
-      "color": "#eebc00"
+      "in": "２０１７年９月６日",
+      "out": "２０１８年９月３１日",
+      "color": "#00ffee"
+    },
+    {
+      "name": "卒業したあとで復帰して卒業した人",
+      "color": "violet",
+      "enrollments": [
+        {
+          "in": "2016.5.6",
+          "out": "2017.12.20",
+        },
+        {
+          "in": "2018.8.1",
+          "out": "2019.8.2",
+        }
+      ]
+    },
+    {
+      "name": "卒業したあとで復帰して、担当カラーが変わった人",
+      "enrollments": [
+        {
+          "in": "2016.5.6",
+          "out": "2017.7.1",
+          "color": "aqua"
+        },
+        {
+          "in": "2018.3.15",
+          "color": "yellow",
+          "border_color": "black"
+        }
+      ]
     }
   ]
 }, elSVG, false);
