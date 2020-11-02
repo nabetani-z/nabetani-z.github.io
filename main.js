@@ -16,7 +16,7 @@ elDrop.addEventListener('dragleave', event => {
 elDrop.addEventListener('drop', event => {
   event.preventDefault();
   hideDropping();
-  showFiles(event.dataTransfer.files);
+  drawGraph(event.dataTransfer.files);
 });
 
 const showDropping = () => {
@@ -36,12 +36,15 @@ const append = (p, tag, attrs = {}) => {
   return c;
 }
 
-const appendSVG = (p, tag, attrs = {}) => {
+const appendSVG = (p, tag, attrs = {}, inner = null) => {
   let c = document.createElementNS('http://www.w3.org/2000/svg', tag);
   for (const [key, value] of Object.entries(attrs)) {
     c.setAttribute(key, value);
   }
   p.appendChild(c);
+  if (inner) {
+    c.innerHTML = inner;
+  }
   return c;
 };
 
@@ -169,36 +172,36 @@ const bulidSVG = (o, svgOwner, pngOwner) => {
   const o_height = o.height || calcHeight(o, o_width);
   const pstyle = `height:${o_height}${unit};width:${o_width}${unit}`;
   svgOwner.setAttribute("style", pstyle)
-  let now = nowString();
+  const now = nowString();
   const gap = 3;
   const gh = o.members.length * 10;
   const th = o.members.length * 11;
   const w = (th + gap * 2) * o_width / o_height - gap
-  let range = rangeOf(o);
-  let svg = appendSVG(svgOwner, "svg", {
+  const range = rangeOf(o);
+  const svg = appendSVG(svgOwner, "svg", {
     xmlns: "http://www.w3.org/2000/svg",
     height: o_height + unit,
     width: o_width + unit,
     viewBox: `${-gap} ${-gap} ${w + gap} ${th + gap * 2}`
   });
   whiteBack(svg, w, th);
-  let mYearGrid = gridLayer(svg, w / 400, 0.5);
-  let mThickGrid = gridLayer(svg, w / 800, 0.5, "1,0.5");
-  let mThinGrid = gridLayer(svg, w / 1600, 0.2, "0.5,1");
-  let nameTexts = textLayer(svg, 4);
-  let yearTexts = textLayer(svg, 3);
-  let graphs = appendSVG(svg, "g", { fill: "#eee" });
-  let measure = {
+  const mYearGrid = gridLayer(svg, w / 400, 0.5);
+  const mThickGrid = gridLayer(svg, w / 800, 0.5, "1,0.5");
+  const mThinGrid = gridLayer(svg, w / 1600, 0.2, "0.5,1");
+  const nameTexts = textLayer(svg, 4);
+  const yearTexts = textLayer(svg, 3);
+  const graphs = appendSVG(svg, "g", { fill: "#eee" });
+  const measure = {
     range: rangeOf(o),
     w: w,
     name_ratio: o.name_ratio || 0.2,
   };
   for (let i = 0; i < o.members.length; ++i) {
-    let m = o.members[i];
-    let col = m.color || "rgb(0,0,255)";
-    let bcol = m.border_color || "rgb(0,0,0,0)";
-    let start = xpos(measure, m.in);
-    let end = xpos(measure, m.out || o.end || now);
+    const m = o.members[i];
+    const col = m.color || "rgb(0,0,255)";
+    const bcol = m.border_color || "rgb(0,0,0,0)";
+    const start = xpos(measure, m.in);
+    const end = xpos(measure, m.out || o.end || now);
     const barH = 3;
     const barStyle = `fill: ${col}; stroke-width:${m.border_color ? 0.3 : 0}`
     appendSVG(graphs, "rect", {
@@ -220,8 +223,8 @@ const bulidSVG = (o, svgOwner, pngOwner) => {
     }
   }
   for (let yymm = toYYMM(range.min, -1); yymm <= toYYMM(range.max, 1); ++yymm) {
-    let x = xpos(measure, `${Math.floor(yymm / 12)}-${(yymm % 12) + 1}-1`);
-    let grid = () => {
+    const x = xpos(measure, `${Math.floor(yymm / 12)}-${(yymm % 12) + 1}-1`);
+    const grid = () => {
       if (yymm % 12 == 0) { return mYearGrid; }
       if (yymm % 3 == 0) { return mThickGrid; }
       return mThinGrid;
@@ -232,32 +235,30 @@ const bulidSVG = (o, svgOwner, pngOwner) => {
     });
     if (yymm % 12 == 0 && yymm + 2 < toYYMM(range.max, 1)) {
       const year = Math.floor(yymm / 12);
-      let text = appendSVG(yearTexts, "text", {
+      appendSVG(yearTexts, "text", {
         lang: "ja",
         x: x, y: gh + 3,
         "text-anchor": "middle"
-      });
-      text.innerHTML = year;
+      }, year);
     }
   }
   for (let i = 0; i < o.members.length; ++i) {
-    let text = appendSVG(nameTexts, "text", {
+    appendSVG(nameTexts, "text", {
       lang: "ja",
       x: 1,
       y: i * 10 + 7
-    });
-    text.innerHTML = o.members[i].name;
+    }, o.members[i].name);
   }
   // 使い方
-  svg2jpeg(svg, function (data) {
+  svg2jpeg(svg, (data) => {
     document.getElementById('png-image').src = data;
-  }, function (error) {
+  }, (error) => {
     console.log(error);
     alert(error);
   })
 };
 
-const showFiles = (files) => {
+const drawGraph = (files) => {
   elSVG.innerHTML = '';
   if (1 != files.length) {
     alert("Not a single file was drpoped.");
