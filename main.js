@@ -165,7 +165,7 @@ const textLayer = (svg, fontSize) => {
   });
 };
 
-const bulidSVG = (o, svgOwner, pngOwner) => {
+const bulidSVG = (o, svgOwner, hidePrompt) => {
   svgOwner.innerHTML = ""
   const unit = o.unit || "px";
   const o_width = o.width || 1600;
@@ -252,7 +252,13 @@ const bulidSVG = (o, svgOwner, pngOwner) => {
     }
   }
   svg2jpeg(svg, (data) => {
-    document.getElementById('png-image').src = data;
+    if (hidePrompt) {
+      const elPrompt = document.getElementById('png-prompt');
+      elPrompt.style.display = "none";
+    }
+    const elImg = document.getElementById('png-image');
+    elImg.src = data;
+    elImg.style.width = "100%";
   }, (error) => {
     console.log(error);
     alert(error);
@@ -274,14 +280,14 @@ const drawGraph = (files) => {
   let reader = new FileReader();
   reader.onload = (e) => {
     let o = JSON.parse(e.target.result);
-    bulidSVG(o, elSVG, elPng);
+    bulidSVG(o, elSVG, true);
   }
   reader.readAsText(file);
 };
 
 bulidSVG({
-  //"width": 1600,
-  // "height": 400,
+  "width": 1600,
+  "height": 400,
   "end": "2019.12.24",
   "members": [
     {
@@ -314,4 +320,4 @@ bulidSVG({
       "color": "brown"
     }
   ]
-}, elSVG, elPng);
+}, elSVG, false);
