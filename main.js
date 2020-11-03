@@ -190,7 +190,7 @@ const textLayer = (svg, fontSize) => {
 
 const addBar = (graphs, start, end, i, col0, bcol) => {
   const barH = 4;
-  const col = col0 || "rgb(0,255,0)";
+  const col = col0 || "rgb(0,0,255)";
   const barStyle = `fill: ${col}; stroke-width:${bcol ? 0.3 : 0}`
   appendSVG(graphs, "rect", {
     height: barH,
