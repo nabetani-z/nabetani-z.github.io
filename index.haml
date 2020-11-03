@@ -17,6 +17,10 @@
       #png-image{
         border: solid #888 1px;
       }
+      textarea#json_text{
+        width:100%;
+        height:5cm;
+      }
   %body#dropzone
     %h1 在籍期間タイムライン画像生成ツール
     %p
@@ -37,5 +41,9 @@
       %p#png-prompt
         以下の画像はサンプルです:
       %img#png-image
+    %h2 JSON
+    %p
+      以下の JSON を拡張子 ".json" としてローカルに保存すると上記の PNG のソースとして利用できます。
+    %textarea#json_text{ readonly:true }
   %script{ src:"main.js" }
 

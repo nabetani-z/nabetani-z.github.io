@@ -17,6 +17,10 @@
   #png-image{
     border: solid #888 1px;
   }
+  textarea#json_text{
+    width:100%;
+    height:5cm;
+  }
 </style>
 </head>
 <body id='dropzone'>
@@ -45,6 +49,11 @@
 </p>
 <img id='png-image'>
 </div>
+<h2>JSON</h2>
+<p>
+以下の JSON を拡張子 ".json" としてローカルに保存すると上記の PNG のソースとして利用できます。
+</p>
+<textarea id='json_text' readonly></textarea>
 </body>
 <script src='main.js'></script>
 </html>

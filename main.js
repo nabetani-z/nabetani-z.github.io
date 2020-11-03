@@ -2,6 +2,7 @@
 const elDrop = document.getElementById('dropzone');
 const elSVG = document.getElementById('svg');
 const elPng = document.getElementById('png');
+const elJsonText = document.getElementById('json_text');
 
 elDrop.addEventListener('dragover', event => {
   event.preventDefault();
@@ -203,6 +204,7 @@ const addBar = (graphs, start, end, i, col0, bcol) => {
 };
 
 const createPng = (o, svgOwner, hidePrompt) => {
+  elJsonText.value = JSON.stringify(o, null, "  ");
   svgOwner.innerHTML = ""
   const unit = o.unit || "px";
   const o_width = o.width || 1600;
