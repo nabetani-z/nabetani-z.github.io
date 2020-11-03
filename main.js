@@ -2,6 +2,7 @@
 const elDrop = document.getElementById('dropzone');
 const elSVG = document.getElementById('svg');
 const elPng = document.getElementById('png');
+const elJsonText = document.getElementById('json_text');
 
 elDrop.addEventListener('dragover', event => {
   event.preventDefault();
@@ -16,7 +17,7 @@ elDrop.addEventListener('dragleave', event => {
 elDrop.addEventListener('drop', event => {
   event.preventDefault();
   hideDropping();
-  drawGraph(event.dataTransfer.files);
+  onDropFiles(event.dataTransfer.files);
 });
 
 const showDropping = () => {
@@ -190,7 +191,7 @@ const textLayer = (svg, fontSize) => {
 
 const addBar = (graphs, start, end, i, col0, bcol) => {
   const barH = 4;
-  const col = col0 || "rgb(0,255,0)";
+  const col = col0 || "rgb(0,0,255)";
   const barStyle = `fill: ${col}; stroke-width:${bcol ? 0.3 : 0}`
   appendSVG(graphs, "rect", {
     height: barH,
@@ -202,7 +203,8 @@ const addBar = (graphs, start, end, i, col0, bcol) => {
   });
 };
 
-const bulidSVG = (o, svgOwner, hidePrompt) => {
+const createPng = (o, svgOwner, hidePrompt) => {
+  elJsonText.value = JSON.stringify(o, null, "  ");
   svgOwner.innerHTML = ""
   const unit = o.unit || "px";
   const o_width = o.width || 1600;
@@ -304,14 +306,13 @@ const bulidSVG = (o, svgOwner, hidePrompt) => {
   })
 };
 
-const drawGraph = (files) => {
+const onDropFiles = (files) => {
   elSVG.innerHTML = '';
   if (1 != files.length) {
     alert("Not a single file was drpoped.");
     return;
   }
   let file = files[0];
-  console.log(files);
   if ("application/json" != file.type) {
     alert(`dropped file ${file.name} is not a json`);
     return;
@@ -319,73 +320,99 @@ const drawGraph = (files) => {
   let reader = new FileReader();
   reader.onload = (e) => {
     let o = JSON.parse(e.target.result);
-    bulidSVG(o, elSVG, true);
+    o.end = nowString();
+    let json = JSON.stringify(o);
+    history.pushState('', '', `?json=${encodeURIComponent(json)}`);
+    createPng(o, elSVG, true);
   }
   reader.readAsText(file);
 };
 
-bulidSVG({
-  "width": 1600,
-  "height": 500,
-  "end": "2019.12.24",
-  "members": [
-    {
-      "name": "最後までいた初期メン",
-      "in": "2016年1月1日",
-      "color": "green"
-    },
-    {
-      "name": "半年で卒業した初期メン",
-      "in": "2016年1月1日",
-      "out": "2016年7月12日",
-      "color": "white",
-      "border_color": "black"
-    },
-    {
-      "name": "途中加入で最後までいた人",
-      "in": "2016年4月7日",
-      "color": "red"
-    },
-    {
-      "name": "途中加入ですぐ卒業した人",
-      "in": "2016年4月7日",
-      "out": "2016年4月28日",
-      "color": "#00f"
-    },
-    {
-      "name": "一年ぐらいで卒業した人",
-      "in": "２０１７年９月６日",
-      "out": "２０１８年９月３１日",
-      "color": "#00ffee"
-    },
-    {
-      "name": "卒業したあとで復帰して卒業した人",
-      "color": "violet",
-      "enrollments": [
-        {
-          "in": "2016.5.6",
-          "out": "2017.12.20",
-        },
-        {
-          "in": "2018.8.1",
-          "out": "2019.8.2",
-        }
-      ]
-    },
-    {
-      "name": "卒業したあとで復帰して、担当カラーが変わった人",
-      "enrollments": [
-        {
-          "in": "2016.5.6",
-          "out": "2017.7.1",
-          "color": "aqua"
-        },
-        {
-          "in": "2018.3.15",
-          "color": "yellow",
-          "border_color": "black"
-        }
-      ]
-    }
-  ]
-}, elSVG, false);
+const sampleGraph = () => {
+  createPng({
+    "width": 1600,
+    "height": 500,
+    "end": "2019.12.24",
+    "members": [
+      {
+        "name": "最後までいた初期メン",
+        "in": "2016年1月1日",
+        "color": "green"
+      },
+      {
+        "name": "半年で卒業した初期メン",
+        "in": "2016年1月1日",
+        "out": "2016年7月12日",
+        "color": "white",
+        "border_color": "black"
+      },
+      {
+        "name": "途中加入で最後までいた人",
+        "in": "2016年4月7日",
+        "color": "red"
+      },
+      {
+        "name": "途中加入ですぐ卒業した人",
+        "in": "2016年4月7日",
+        "out": "2016年4月28日",
+        "color": "#00f"
+      },
+      {
+        "name": "一年ぐらいで卒業した人",
+        "in": "２０１７年９月６日",
+        "out": "２０１８年９月３１日",
+        "color": "#00ffee"
+      },
+      {
+        "name": "卒業したあとで復帰して卒業した人",
+        "color": "violet",
+        "enrollments": [
+          {
+            "in": "2016.5.6",
+            "out": "2017.12.20",
+          },
+          {
+            "in": "2018.8.1",
+            "out": "2019.8.2",
+          }
+        ]
+      },
+      {
+        "name": "卒業したあとで復帰して、担当カラーが変わった人",
+        "enrollments": [
+          {
+            "in": "2016.5.6",
+            "out": "2017.7.1",
+            "color": "aqua"
+          },
+          {
+            "in": "2018.3.15",
+            "color": "yellow",
+            "border_color": "black"
+          }
+        ]
+      }
+    ]
+  }, elSVG, false);
+}
+
+
+const getQJson = (s) => {
+  const m = s.match(/json\=([^&]+)/);
+  if (!m) {
+    return null;
+  }
+  const json = decodeURIComponent(m[1]);
+  return JSON.parse(json);
+}
+
+const main = () => {
+  let qjson = getQJson(location.search);
+  if (qjson) {
+    createPng(qjson, elSVG, true);
+  } else {
+    sampleGraph();
+  }
+};
+
+main();

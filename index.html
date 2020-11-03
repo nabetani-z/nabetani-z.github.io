@@ -17,6 +17,10 @@
   #png-image{
     border: solid #888 1px;
   }
+  textarea#json_text{
+    width:100%;
+    height:5cm;
+  }
 </style>
 </head>
 <body id='dropzone'>
@@ -29,6 +33,8 @@
 <hr>
 <p>
 ここに jsonファイルをドロップすると、在籍期間タイムライン画像を生成します。
+<br>
+その後、URL に json が付加されてリロードによって同じ画像が得られます。
 </p>
 <section id='svg_section'>
 <h2>SVG</h2>
@@ -45,6 +51,11 @@
 </p>
 <img id='png-image'>
 </div>
+<h2>JSON</h2>
+<p>
+以下の JSON を拡張子 ".json" としてローカルに保存すると上記の PNG のソースとして利用できます。
+</p>
+<textarea id='json_text' readonly></textarea>
 </body>
 <script src='main.js'></script>
 </html>
