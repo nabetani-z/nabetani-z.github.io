@@ -320,6 +320,7 @@ const onDropFiles = (files) => {
   let reader = new FileReader();
   reader.onload = (e) => {
     let o = JSON.parse(e.target.result);
+    o.end = nowString();
     let json = JSON.stringify(o);
     history.pushState('', '', `?json=${encodeURIComponent(json)}`);
     createPng(o, elSVG, true);
