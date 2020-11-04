@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+<meta charset='utf-8'>
+<style>
+  #dropzone{
+    background-color:#eee;
+  }
+  .svg, .png{
+    background-color:white;
+  }
+  #svg_section{
+    position:fixed; 
+    top:-1000000px;
+    left:-1000000px;
+  }
+  #png-image{
+    border: solid #888 1px;
+  }
+  textarea#json_text{
+    width:100%;
+    height:5cm;
+  }
+</style>
+</head>
+<body id='dropzone'>
+<h1>在籍期間タイムライン画像生成ツール</h1>
+<p>
+詳細については
+<a href='https://github.com/nabetani-z/affiliation-chart/blob/main/README.md'>github の readme.md</a>
+へ。
+</p>
+<hr>
+<p>
+ここに jsonファイルをドロップすると、在籍期間タイムライン画像を生成します。
+<br>
+その後、URL に json が付加されてリロードによって同じ画像が得られます。
+</p>
+<section id='svg_section'>
+<h2>SVG</h2>
+<div class='svg' id='svg'></div>
+<hr>
+</section>
+<h2>PNG</h2>
+<p>
+以下の画像は PNG です。右クリック → 画像をコピー などで画像を取得できます。
+</p>
+<div class='png' id='png'>
+<p id='png-prompt'>
+以下の画像はサンプルです:
+</p>
+<img id='png-image'>
+</div>
+<h2>JSON</h2>
+<p>
+以下の JSON を拡張子 ".json" としてローカルに保存すると上記の PNG のソースとして利用できます。
+</p>
+<textarea id='json_text' readonly></textarea>
+</body>
+<script src='main.js'></script>
+</html>
