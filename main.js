@@ -89,11 +89,11 @@ const rangeOf = (o) => {
   for (let m of o.members) {
     if (m.in) {
       dMin = Math.min(dMin, toTick(m.in));
-      dMax = Math.max(dMax, toTick(m.out || o.end || now));
+      dMax = Math.max(dMax, toTick(m.out || o.end));
     }
     for (let e of m.enrollments || []) {
       dMin = Math.min(dMin, toTick(e.in));
-      dMax = Math.max(dMax, toTick(e.out || o.end || now));
+      dMax = Math.max(dMax, toTick(e.out || o.end));
     }
   }
   const month = 1000 * 60 * 60 * 24 * 32;
@@ -190,7 +190,7 @@ const textLayer = (svg, fontSize) => {
 };
 
 const addBar = (graphs, start, end, i, col0, bcol) => {
-  const barH = 4;
+  const barH = 5;
   const col = col0 || "rgb(0,0,255)";
   const barStyle = `fill: ${col}; stroke-width:${bcol ? 0.3 : 0}`
   appendSVG(graphs, "rect", {
@@ -229,7 +229,8 @@ const createPng = (o, svgOwner, hidePrompt) => {
   const mThinGrid = gridLayer(svg, w / 1600, 0.2, "0.5,1");
   const nameTexts = textLayer(svg, 5);
   const yearTexts = textLayer(svg, 3);
-  const graphs = appendSVG(svg, "g", { fill: "#eee" });
+  const graphs = appendSVG(svg, "g");
+  const events = gridLayer(svg, w / 600, 1);
   let textWMax = 0;
   for (let i = 0; i < o.members.length; ++i) {
     const text = appendSVG(nameTexts, "text", {
@@ -244,6 +245,21 @@ const createPng = (o, svgOwner, hidePrompt) => {
     w: w,
     name_ratio: (textWMax + 5) / w
   };
+  for (let e of o.events) {
+    const x = xpos(measure, e.t);
+    appendSVG(events, "line", {
+      x1: x, x2: x,
+      y1: 0, y2: gh + 4,
+      style: `stroke: ${e.color}`,
+    });
+    appendSVG(yearTexts, "text", {
+      lang: "ja",
+      x: x,
+      y: gh + 7,
+      "text-anchor": "middle",
+      style: `fill: ${e.color}`
+    }, e.label);
+  }
   for (let i = 0; i < o.members.length; ++i) {
     if (i % 2 == 1) {
       appendSVG(graphs, "rect", {
@@ -258,7 +274,7 @@ const createPng = (o, svgOwner, hidePrompt) => {
     if (m.in) {
       addBar(graphs,
         xpos(measure, m.in),
-        xpos(measure, m.out || o.end || now),
+        xpos(measure, m.out || o.end),
         i,
         m.color,
         m.border_color);
@@ -266,7 +282,7 @@ const createPng = (o, svgOwner, hidePrompt) => {
     for (let e of m.enrollments || []) {
       addBar(graphs,
         xpos(measure, e.in),
-        xpos(measure, e.out || o.end || now),
+        xpos(measure, e.out || o.end),
         i,
         e.color || m.color,
         e.color ? e.border_color : m.border_color);
@@ -320,7 +336,9 @@ const onDropFiles = (files) => {
   let reader = new FileReader();
   reader.onload = (e) => {
     let o = JSON.parse(e.target.result);
-    o.end = nowString();
+    if (!o.end) {
+      o.end = nowString();
+    }
     let json = JSON.stringify(o);
     history.pushState('', '', `?json=${encodeURIComponent(json)}`);
     createPng(o, elSVG, true);
@@ -392,6 +410,38 @@ const sampleGraph = () => {
           }
         ]
       }
+    ],
+    "events": [
+      {
+        "label": "1S",
+        "t": "2016.6.15",
+        "color": "brown",
+      },
+      {
+        "label": "2S",
+        "t": "2017年4月14日",
+        "color": "brown",
+      },
+      {
+        "label": "3S",
+        "t": "2018.6.1",
+        "color": "brown",
+      },
+      {
+        "label": "M1A",
+        "t": "2019.1.15",
+        "color": "darkblue",
+      },
+      {
+        "label": "M1S",
+        "t": "2019.6.1",
+        "color": "brown",
+      },
+      {
+        "label": "M2A",
+        "t": "2019.11.15",
+        "color": "darkblue",
+      },
     ]
   }, elSVG, false);
 }
