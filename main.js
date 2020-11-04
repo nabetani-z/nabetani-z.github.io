@@ -245,20 +245,23 @@ const createPng = (o, svgOwner, hidePrompt) => {
     w: w,
     name_ratio: (textWMax + 5) / w
   };
-  for (let e of o.events) {
-    const x = xpos(measure, e.t);
-    appendSVG(events, "line", {
-      x1: x, x2: x,
-      y1: 0, y2: gh + 4,
-      style: `stroke: ${e.color}`,
-    });
-    appendSVG(yearTexts, "text", {
-      lang: "ja",
-      x: x,
-      y: gh + 7,
-      "text-anchor": "middle",
-      style: `fill: ${e.color}`
-    }, e.label);
+  if (o.events) {
+    for (let e of o.events) {
+      const x = xpos(measure, e.t);
+      const color = e.color || "black";
+      appendSVG(events, "line", {
+        x1: x, x2: x,
+        y1: 0, y2: gh + 4,
+        style: `stroke: ${color}`,
+      });
+      appendSVG(yearTexts, "text", {
+        lang: "ja",
+        x: x,
+        y: gh + 7,
+        "text-anchor": "middle",
+        style: `fill: ${color}`
+      }, e.label);
+    }
   }
   for (let i = 0; i < o.members.length; ++i) {
     if (i % 2 == 1) {
