@@ -61,5 +61,37 @@
         }
       ]
     }
+  ],
+  "events": [
+    {
+      "label": "1S",
+      "t": "2016.6.15",
+      "color": "brown"
+    },
+    {
+      "label": "2S",
+      "t": "2017年4月14日",
+      "color": "brown"
+    },
+    {
+      "label": "3S",
+      "t": "2018.6.1",
+      "color": "brown"
+    },
+    {
+      "label": "M1A",
+      "t": "2019.1.15",
+      "color": "darkblue"
+    },
+    {
+      "label": "M1S",
+      "t": "2019.6.1",
+      "color": "brown"
+    },
+    {
+      "label": "M2A",
+      "t": "2019.11.15",
+      "color": "darkblue"
+    }
   ]
 }
