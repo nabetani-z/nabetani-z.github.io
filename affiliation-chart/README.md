@@ -7,7 +7,7 @@ Wikipedia にあるアイドルグループの記事の、在籍期間画像を�
 
 ### 0. サーバにアクセスする
 
-https://raw.githack.com/nabetani-z/affiliation-chart/main/index.html
+https://nabetani-z.github.io/affiliation-chart
 
 で使えます。
 
