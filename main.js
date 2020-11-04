@@ -221,7 +221,7 @@ const createPng = (o, svgOwner, hidePrompt) => {
     xmlns: "http://www.w3.org/2000/svg",
     height: o_height + unit,
     width: o_width + unit,
-    viewBox: `${-gap} ${-gap} ${w + gap} ${th + gap * 2}`
+    viewBox: `${-gap} ${-gap - 5} ${w + gap} ${th + gap * 2}`
   });
   whiteBack(svg, w, th);
   const mYearGrid = gridLayer(svg, w / 400, 0.5);
@@ -230,7 +230,7 @@ const createPng = (o, svgOwner, hidePrompt) => {
   const nameTexts = textLayer(svg, 5);
   const yearTexts = textLayer(svg, 3);
   const graphs = appendSVG(svg, "g");
-  const events = gridLayer(svg, w / 600, 1);
+  const events = gridLayer(svg, w / 600, 1, "1,1");
   let textWMax = 0;
   for (let i = 0; i < o.members.length; ++i) {
     const text = appendSVG(nameTexts, "text", {
@@ -251,13 +251,13 @@ const createPng = (o, svgOwner, hidePrompt) => {
       const color = e.color || "black";
       appendSVG(events, "line", {
         x1: x, x2: x,
-        y1: 0, y2: gh + 4,
+        y1: 0, y2: gh + 2,
         style: `stroke: ${color}`,
       });
       appendSVG(yearTexts, "text", {
         lang: "ja",
         x: x,
-        y: gh + 7,
+        y: gh + 6,
         "text-anchor": "middle",
         style: `fill: ${color}`
       }, e.label);
@@ -300,13 +300,13 @@ const createPng = (o, svgOwner, hidePrompt) => {
     };
     appendSVG(grid(), "line", {
       x1: x, x2: x,
-      y1: 0, y2: gh
+      y1: -2, y2: gh
     });
     if (yymm % 12 == 0 && yymm + 2 < toYYMM(range.max, 1)) {
       const year = Math.floor(yymm / 12);
       appendSVG(yearTexts, "text", {
         lang: "ja",
-        x: x, y: gh + 3,
+        x: x, y: -3,
         "text-anchor": "middle"
       }, year);
     }
