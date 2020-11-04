@@ -1,5 +1,5 @@
-affiliation-chart.html: affiliation-chart.haml main.js
-	haml -Eutf-8 affiliation-chart.haml > affiliation-chart.html
+index.html: index.haml main.js
+	haml -Eutf-8 index.haml > index.html
 
 clean:
-	rm -f affiliation-chart.html
+	rm -f index.html
