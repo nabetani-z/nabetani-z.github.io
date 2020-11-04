@@ -214,7 +214,7 @@ const createPng = (o, svgOwner, hidePrompt) => {
   const now = nowString();
   const gap = 3;
   const gh = o.members.length * 10;
-  const th = o.members.length * 11;
+  const th = (o.members.length + 1) * 10;
   const w = (th + gap * 2) * o_width / o_height - gap
   const range = rangeOf(o);
   const svg = appendSVG(svgOwner, "svg", {
