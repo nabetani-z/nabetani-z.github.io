@@ -203,8 +203,13 @@ const addBar = (graphs, start, end, i, col0, bcol) => {
   });
 };
 
-const createPng = (o, svgOwner, hidePrompt) => {
-  elJsonText.value = JSON.stringify(o, null, "  ");
+const createPng = (o, svgOwner, hidePrompt, updateJsonText, updateAddrBar) => {
+  if (updateAddrBar) {
+    history.pushState('', '', `?json=${encodeURIComponent(JSON.stringify(o))}`);
+  }
+  if (updateJsonText) {
+    elJsonText.value = JSON.stringify(o, null, "  ");
+  }
   svgOwner.innerHTML = ""
   const unit = o.unit || "px";
   const o_width = o.width || 1600;
@@ -343,8 +348,7 @@ const onDropFiles = (files) => {
       o.end = nowString();
     }
     let json = JSON.stringify(o);
-    history.pushState('', '', `?json=${encodeURIComponent(json)}`);
-    createPng(o, elSVG, true);
+    createPng(o, elSVG, true, true, true);
   }
   reader.readAsText(file);
 };
@@ -446,7 +450,7 @@ const sampleGraph = () => {
         "color": "darkblue",
       },
     ]
-  }, elSVG, false);
+  }, elSVG, false, true, false);
 }
 
 
@@ -459,10 +463,16 @@ const getQJson = (s) => {
   return JSON.parse(json);
 }
 
+document.getElementById('update').onclick = () => {
+  let o = JSON.parse(elJsonText.value);
+  createPng(o, elSVG, true, false, true);
+};
+
+
 const main = () => {
   let qjson = getQJson(location.search);
   if (qjson) {
-    createPng(qjson, elSVG, true);
+    createPng(qjson, elSVG, true, true);
   } else {
     sampleGraph();
   }
